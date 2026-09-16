@@ -83,6 +83,9 @@ summary{cursor:pointer;color:#ff8a9c;font-weight:600;font-size:13px}
 .sec-tag{font-size:11px;color:#9a9a9a;font-style:italic}
 .sec-src{font-size:10.5px;color:#8b8b8b;flex-basis:100%;padding-left:25px;margin-top:-3px}
 .sec-rep{font-size:11px;color:#ffb35c}
+.lost{margin-top:12px;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 12px}
+.lost[open]{background:rgba(255,255,255,.03)}
+.lost-body p{font-size:13px;margin:8px 0;line-height:1.5}
 .site-footer{border-top:1px solid rgba(255,255,255,.08);margin-top:28px;padding:1.3rem 0;text-align:center;font-size:.85rem;color:#777}
 .site-footer a{color:#999;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.15)}
 .site-footer a:hover{color:#C11430;border-color:#C11430}
@@ -109,6 +112,8 @@ body.light .pill{background:rgba(0,0,0,.06);color:#444}
 body.light .pill.red{background:rgba(193,20,48,.08);color:#C11430}
 body.light .ok{color:#1a7f45}body.light .warn,body.light .sec-rep{color:#a65c00}body.light .bad{color:#C11430}
 body.light .sec-row{border-top-color:rgba(0,0,0,.08)}
+body.light .lost{border-color:rgba(0,0,0,.12)}
+body.light .lost[open]{background:rgba(0,0,0,.02)}
 body.light a{color:#C11430}
 body.light .site-footer{border-top-color:rgba(0,0,0,.1);color:#888}
 /* printable slips */
@@ -216,7 +221,7 @@ body.light .site-footer{border-top-color:rgba(0,0,0,.1);color:#888}
         <button class="bo" id="printSlips" type="button" disabled>Print number slips</button>
         <button class="bo" id="dlKey" type="button" disabled>Save my key</button>
       </div>
-      <div class="hint" style="margin-top:8px"><b>Number slips:</b> one per student to hand out. &nbsp; <b>My key:</b> the only thing that turns a number back into a name. Save it in your OneDrive. Never upload it to another app.</div>
+      <div class="hint" style="margin-top:8px"><b>Number slips:</b> one per student to hand out. &nbsp; <b>My key:</b> this class's numbers and names in one file. Roster Hub already remembers the class on this computer; the key is your copy for any other computer. Save it in your OneDrive. Never upload it to another app.</div>
       <div class="row">
         <label style="font-size:13px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="remember" checked> Remember my classes on this computer</label>
         <button class="bo small" id="forget" type="button">Forget this class</button>
@@ -237,26 +242,38 @@ body.light .site-footer{border-top-color:rgba(0,0,0,.1);color:#888}
   <div class="card step">
     <div class="num">1</div>
     <div style="flex:1;min-width:0">
-      <h2>Pick the class</h2>
-      <div class="row">
-        <select id="savedClasses" style="min-width:240px"></select>
-        <label class="bo">Open a saved key… <input type="file" id="keyFile" accept=".csv,text/csv" class="hidden"></label>
-      </div>
-      <div class="status" id="keyStatus"></div>
+      <h2>Add the results</h2>
+      <div class="hint">Get the scores as a file from the app that graded them. In ZipGrade, open the quiz on zipgrade.com and download its CSV. Then choose that file here, or open it and paste everything into the box.</div>
+      <div class="row"><label class="bo">Choose the results file… <input type="file" id="zgFile" accept=".csv,text/csv,.txt" class="hidden"></label></div>
+      <textarea id="zgIn" placeholder="…or paste the results here." style="min-height:80px"></textarea>
+      <div class="status" id="zgStatus"></div>
+      <details id="colBox"><summary>Numbers or scores look wrong? Choose the columns yourself</summary>
+        <div class="row">
+          <label class="fld">Column with the three-digit student numbers <select id="idCol"></select></label>
+          <label class="fld">Score to use <select id="scoreCol"></select></label>
+        </div>
+      </details>
     </div>
   </div>
   <div class="card step">
     <div class="num">2</div>
     <div style="flex:1;min-width:0">
-      <h2>Add the results</h2>
-      <div class="hint">Download the results as a CSV from any app that lists scores by student number. In ZipGrade, open the quiz on zipgrade.com and download its CSV. Choose that file here, or open it and paste everything below.</div>
-      <div class="row"><label class="bo">Choose the results file… <input type="file" id="zgFile" accept=".csv,text/csv,.txt" class="hidden"></label></div>
-      <textarea id="zgIn" placeholder="…or paste the results here." style="min-height:80px"></textarea>
-      <div class="row">
-        <label class="fld">Column with the three-digit numbers <select id="idCol"></select></label>
-        <label class="fld">Score to use <select id="scoreCol"></select></label>
+      <h2>Which class are these scores for?</h2>
+      <div id="pickBlk" class="hidden">
+        <div class="hint">These are the classes Roster Hub remembers on this computer. Tap one. You do not need a key file for these. Once you add the results, Roster Hub picks the class for you when it can.</div>
+        <div class="chips" id="scoreClassList"></div>
       </div>
-      <div class="status" id="zgStatus"></div>
+      <div class="status" id="keyStatus"></div>
+      <details id="lostBox" class="lost">
+        <summary>My class isn't here</summary>
+        <div class="lost-body">
+          <p><b>Did you set the class up on a different computer?</b> Open Roster Hub on that computer and turn the scores into names there.</p>
+          <p><b>Do you have a backup file?</b> Its name starts with <span class="mono">raider-roster-hub-backup</span>. It is usually in Downloads or OneDrive.<br><label class="bo small" style="display:inline-block;margin-top:5px">Restore from a backup… <input type="file" id="bkFile2" accept=".json,application/json" class="hidden"></label></p>
+          <p><b>Do you have a key file?</b> Its name starts with <span class="mono">MY-KEY-keep-private</span>.<br><label class="bo small" style="display:inline-block;margin-top:5px">Open my key file… <input type="file" id="keyFile" accept=".csv,text/csv" class="hidden"></label></p>
+          <p><b>Not sure whether you have either one?</b> On Windows, open File Explorer, click the search box at the top right, and type <span class="mono">MY-KEY</span>, then try <span class="mono">roster-hub-backup</span>. On a Mac, press Cmd+Space and type the same words.</p>
+          <p><b>None of these?</b> Go to <b>1 · Set up a class</b> and paste the same class list again, choosing the <b>same class number</b> you used before. The numbers come out the same as long as nobody has joined or left the class since you handed them out. Check a few papers against the list to be sure.</p>
+        </div>
+      </details>
     </div>
   </div>
   <div class="card step">
@@ -297,6 +314,8 @@ body.light .site-footer{border-top-color:rgba(0,0,0,.1);color:#888}
     <p>Export the MyRJ attendance sheet with <b>Section</b> set to <b>All</b> and paste column A. Roster Hub lists each class separately, numbers them 1, 2, 3 in order, and names them by block rotation (for example <b>4W-1W-3W · Biology</b>), since blocks switch every six weeks. IMPACT starts unticked. It never puts all your students into one class.</p>
     <h3>What students do</h3>
     <p>Each student gets a slip with their number and uses it wherever the app asks who they are. On a ZipGrade sheet they bubble it in the ID boxes and write it in the name box, and their name goes on the back of the sheet.</p>
+    <h3>Getting scores back to names</h3>
+    <p>Open <b>2 · Scores back to names</b> and add the results file from the app. If the class is remembered on this computer, Roster Hub picks it from the numbers and lists every score by name. On another computer, restore your backup or open your key file first. If you have neither, set the class up again with the same class number and the same list.</p>
     <h3>Backups</h3>
     <p>Remembered classes live in this browser. Clearing its history or site data erases them. <b>Back up all my classes</b> saves one file with every class; <b>Restore from a backup</b> brings them back, on this computer or another one. Your key files also still turn scores back into names.</p>
     <h3>Rules that keep the numbers right</h3>
@@ -867,6 +886,7 @@ $('dlList').addEventListener('click', () => {
   else for (let s = 1; s <= seats; s++) rows.push(F.row(String(code(s)), className()));
   const csv = toCSV(rows);
   download(F.file(safeFile(className())), F.bom ? csv : csv.replace(/^﻿/, ''));
+  bkMsg('warn', 'Downloaded. Before you hand out numbers, also press Back up all my classes and keep that file in your OneDrive. It lets you turn scores back into names on any computer, even if this browser is cleared.');
 });
 $('dlKey').addEventListener('click', () => {
   const rows = [['Seat','Student','Student number','Class number','Class']];
@@ -906,15 +926,16 @@ $('bkSave').addEventListener('click', () => {
   download(`raider-roster-hub-backup-${stamp}.json`, JSON.stringify({ _app: 'raider-roster-hub', _v: 1, saved: d.toISOString(), classes: o }, null, 1), 'application/json');
   bkMsg('ok', `Backed up ${n} class${n === 1 ? '' : 'es'}. Keep the file in your OneDrive; it holds student names.`);
 });
-$('bkFile').addEventListener('change', e => readFile(e.target, text => {
+function restoreBackup(e){ readFile(e.target, text => {
   e.target.value = '';
   let d = null; try { d = JSON.parse(text); } catch(err){}
-  if (!d || d._app !== 'raider-roster-hub' || !d.classes || typeof d.classes !== 'object'){ bkMsg('bad', 'That file is not a Roster Hub backup.'); return; }
+  const fail = t => { bkMsg('bad', t); if (e.target.id === 'bkFile2') keyMsg('bad', t); };
+  if (!d || d._app !== 'raider-roster-hub' || !d.classes || typeof d.classes !== 'object'){ fail('That file is not a Roster Hub backup. Its name should start with raider-roster-hub-backup.'); return; }
   const keys = Object.keys(d.classes).filter(k => {
     const c = d.classes[k];
     return /^[1-8]$/.test(k) && c && Array.isArray(c.roster) && c.roster.every(r => r && typeof r.name === 'string');
   }).sort((a, b) => a - b);
-  if (!keys.length){ bkMsg('bad', 'That backup has no classes in it.'); return; }
+  if (!keys.length){ fail('That backup has no classes in it.'); return; }
   const have = allClasses();
   const clash = keys.filter(k => have[k] && (have[k].name !== d.classes[k].name || have[k].roster.length !== d.classes[k].roster.length));
   if (clash.length && !confirm(`Restoring replaces ${clash.map(k => `Class ${k} ("${have[k].name}")`).join(', ')} on this computer. Continue?`)) return;
@@ -924,8 +945,12 @@ $('bkFile').addEventListener('change', e => readFile(e.target, text => {
   if (!$('remember').checked) $('remember').checked = true;
   showClass(mem[keys[0]]);
   renderOther();
-  bkMsg('ok', `Restored ${keys.length} class${keys.length === 1 ? '' : 'es'}. They are remembered on this computer again.`);
-}));
+  const msg = `Restored ${keys.length} class${keys.length === 1 ? '' : 'es'}. They are remembered on this computer again.`;
+  bkMsg('ok', msg);
+  if (e.target.id === 'bkFile2'){ keyMsg('ok', msg); key = null; refreshSaved(); guessClass(); computeScores(); }
+}); }
+$('bkFile').addEventListener('change', restoreBackup);
+$('bkFile2').addEventListener('change', restoreBackup);
 
 /* ---------- CSV reading ---------- */
 function parseCSV(text){
@@ -956,37 +981,71 @@ function readFile(input, cb){
 /* ---------- scores ---------- */
 let key = null;        // {name, num, roster}
 let zg = null;         // {header, rows}
-function refreshSaved(){
-  const o = allClasses(), sel = $('savedClasses');
-  const keys = Object.keys(o).sort((a, b) => Number(a) - Number(b));
-  sel.innerHTML = '<option value="">— classes on this computer —</option>' +
-    keys.map(k => `<option value="${esc(k)}">Class ${esc(k)} · ${esc(o[k].name)} · ${o[k].roster.length} students</option>`).join('');
-  if (key && key.fromStore) sel.value = String(key.num);
-}
-$('savedClasses').addEventListener('change', () => {
-  const o = allClasses(), c = o[$('savedClasses').value];
-  if (!c) return;
+function keyMsg(cls, t){ $('keyStatus').className = 'status ' + cls; $('keyStatus').textContent = t; }
+function useClass(c, why){
   key = { name: c.name, num: c.num, roster: c.roster, fromStore: true };
-  $('keyStatus').className = 'status ok';
-  $('keyStatus').textContent = `Using ${c.name}: ${c.roster.length} students.`;
+  keyMsg('ok', (why || '') + `Using Class ${c.num} · ${c.name} (${c.roster.length} students).`);
+  refreshSaved();
   computeScores();
-});
+}
+function refreshSaved(){
+  const o = allClasses(), keys = Object.keys(o).sort((a, b) => Number(a) - Number(b)), box = $('scoreClassList');
+  $('pickBlk').classList.toggle('hidden', !keys.length);
+  box.innerHTML = '';
+  keys.forEach(k => {
+    const c = o[k], b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + (key && key.fromStore && String(key.num) === k ? ' a' : '');
+    b.textContent = `Class ${k} · ${c.name} · ${c.roster.length} students`;
+    b.addEventListener('click', () => useClass(c));
+    box.appendChild(b);
+  });
+  if (!keys.length){
+    $('lostBox').open = true;
+    if (!key) keyMsg('warn', 'Roster Hub does not remember any classes on this computer. Use "My class isn\'t here" below.');
+  }
+}
+// Most teachers will not remember which class a results file belongs to. The numbers say it.
+function guessClass(){
+  if (!zg || (key && !key.guessed && !key.fromStore)) return;
+  const ic = Number($('idCol').value), counts = {};
+  zg.rows.forEach(r => { const c = clean(r[ic]).replace(/^0+/, ''); if (/^[1-8]\d\d$/.test(c)) counts[c[0]] = (counts[c[0]] || 0) + 1; });
+  const best = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
+  if (!best) return;
+  if (key && String(key.num) === best) return;
+  const c = allClasses()[best];
+  if (c) useClass(c, `These scores use Class ${best} numbers (${best}01, ${best}02…). `);
+  else {
+    key = null;
+    keyMsg('warn', `These scores use Class ${best} numbers (${best}01, ${best}02…), but Roster Hub does not remember a Class ${best} on this computer. Use "My class isn't here" below.`);
+    $('lostBox').open = true;
+    refreshSaved();
+  }
+}
 $('keyFile').addEventListener('change', e => readFile(e.target, text => {
   const rows = parseCSV(text), h = (rows[0] || []).map(x => clean(x).toLowerCase());
   const iN = h.indexOf('student'), iC = h.indexOf('student number') >= 0 ? h.indexOf('student number') : h.indexOf('zipgrade number'), iS = h.indexOf('seat'), iK = h.indexOf('class');
-  if (iN < 0 || iC < 0){ $('keyStatus').className = 'status bad'; $('keyStatus').textContent = 'That file is not a Roster Hub key.'; return; }
+  if (iN < 0 || iC < 0){ $('keyStatus').className = 'status bad'; $('keyStatus').textContent = 'That file is not a Roster Hub key. Its name should start with MY-KEY-keep-private.'; e.target.value = ''; return; }
   const r = rows.slice(1).filter(x => clean(x[iN])).map((x, i) => ({ seat: Number(x[iS]) || i + 1, name: clean(x[iN]), code: Number(x[iC]) }));
   const num = r.length ? Math.floor(r[0].code / 100) : 0;
   key = { name: iK >= 0 && rows[1] ? clean(rows[1][iK]) : 'Class ' + num, num, roster: r, fromStore: false };
-  $('keyStatus').className = 'status ok';
-  $('keyStatus').textContent = `Opened the key for ${key.name}: ${r.length} students.`;
+  let kept = '';
+  const have = allClasses()[String(num)];
+  if (num >= 1 && num <= 8 && (!have || have.name === key.name)){
+    putClass({ num, name: key.name, roster: r.map(x => ({ seat: x.seat, name: x.name })), saved: new Date().toISOString() });
+    kept = $('remember').checked ? ' It is remembered on this computer again.' : '';
+  }
+  keyMsg('ok', `Opened the key for Class ${num} · ${key.name}: ${r.length} students.` + kept);
+  e.target.value = '';
+  refreshSaved();
+  renderMine();
   computeScores();
 }));
 function keyCode(r){ return r.code != null ? r.code : key.num * 100 + r.seat; }
 
 function loadZG(text){
   const rows = parseCSV(text);
-  let hi = rows.findIndex(r => r.filter(c => clean(c)).length >= 3);
+  let hi = rows.findIndex(r => r.filter(c => clean(c)).length >= 2);
   if (hi < 0){ zg = null; $('zgStatus').className = 'status bad'; $('zgStatus').textContent = 'Could not read that file.'; return; }
   zg = { header: rows[hi].map(clean), rows: rows.slice(hi + 1) };
   const opts = zg.header.map((h, i) => `<option value="${i}">${esc(h || 'Column ' + (i + 1))}</option>`).join('');
@@ -1005,18 +1064,19 @@ function loadZG(text){
   if (sc < 0) sc = zg.header.findIndex(h => /earned|points|score/i.test(h));
   if (sc >= 0) $('scoreCol').value = String(sc);
   $('zgStatus').className = 'status ok';
-  $('zgStatus').textContent = `${zg.rows.length} sheets read. Check the two columns above.`;
+  $('zgStatus').textContent = `${zg.rows.length} results read.`;
+  guessClass();
   computeScores();
 }
 $('zgFile').addEventListener('change', e => readFile(e.target, t => { $('zgIn').value = ''; loadZG(t); }));
 $('zgIn').addEventListener('input', () => { if ($('zgIn').value.trim()) loadZG($('zgIn').value); });
-$('idCol').addEventListener('change', computeScores);
+$('idCol').addEventListener('change', () => { guessClass(); computeScores(); });
 $('scoreCol').addEventListener('change', computeScores);
 
 let results = [];      // [{name, code, score}]
 function computeScores(){
   const tb = $('scoreTable').querySelector('tbody');
-  if (!key || !zg){ tb.innerHTML = '<tr><td colspan="3" class="hint">Pick a class and add the results.</td></tr>'; results = []; updateCanvas(); return; }
+  if (!key || !zg){ tb.innerHTML = '<tr><td colspan="3" class="hint">' + (zg ? 'Pick the class in step 2.' : 'Add the results in step 1.') + '</td></tr>'; results = []; updateCanvas(); return; }
   const ic = Number($('idCol').value), isc = Number($('scoreCol').value);
   const byCode = new Map();
   zg.rows.forEach(r => { const c = clean(r[ic]).replace(/^0+/, ''); if (c) byCode.set(c, clean(r[isc])); });
@@ -1029,6 +1089,12 @@ function computeScores(){
   const extra = [...byCode.keys()].filter(c => !known.has(c));
   const missing = results.filter(r => r.score == null).length;
   const u = $('unmatched');
+  if (byCode.size && missing === results.length){
+    u.className = 'status bad';
+    u.textContent = `None of the numbers in these results belong to Class ${key.num}. Check that you picked the right class in step 2.`;
+    updateCanvas();
+    return;
+  }
   u.className = 'status ' + (extra.length ? 'warn' : 'ok');
   u.textContent = `${results.length - missing} scores matched. ` + (missing ? `${missing} with no sheet (absent, or a number bubbled wrong). ` : '') +
     (extra.length ? `Sheets with numbers not on this list: ${extra.join(', ')}. Check those students in the app (on a ZipGrade sheet, look at the name box).` : '');

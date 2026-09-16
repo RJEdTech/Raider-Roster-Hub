@@ -46,6 +46,22 @@ The download menu is a list of layouts, one per app, kept in `FORMATS` in `index
 
 To support another app, add an entry with its column headings, one row per student, how many seats to include, and the note the number slips should show. The teacher's choice is remembered (`rj-roster-hub-fmt`).
 
+## Scores back to names
+
+Tab 2 is ordered for a teacher who may not remember what they saved:
+
+1. **Add the results file** from the app.
+2. **Pick the class.** Roster Hub reads the class number from the codes (301, 302 … means Class 3) and picks the remembered class itself. It warns when the results belong to a class this computer does not know, or when the chosen class matches none of the numbers.
+3. **Read the scores by name.**
+
+A "My class isn't here" panel explains, in order, what to try:
+
+- the other computer the class was set up on,
+- a backup file (with a restore button),
+- a key file (with an open button; opening a key also remembers that class again),
+- how to search File Explorer or Spotlight for either file,
+- setting the class up again with the same class number and the same list.
+
 ## Backups
 
 **Back up all my classes** saves `raider-roster-hub-backup-YYYY-MM-DD.json` (`_app: "raider-roster-hub"`). **Restore from a backup** brings every class back with its class number, and asks before replacing a different class. The file holds student names, so teachers keep it in OneDrive.
