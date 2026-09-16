@@ -4,10 +4,11 @@
 
 Roster Hub takes a Regis Jesuit class list once and makes it usable in other tools without exposing student names. Teachers can use ZipGrade without putting names into ZipGrade, and the same classes carry over to the Raider Randomizer and the Pod Generator. A class list becomes three-digit numbers, and Roster Hub gives the teacher:
 
-- the file to import into ZipGrade (numbers only),
-- printable code slips to hand out,
+- an anonymous class list (numbers only) laid out for the app that needs it,
+- printable number slips to hand out,
 - a private key that turns numbers back into names,
-- a score list by name, plus an optional Canvas gradebook import file.
+- a score list by name, plus an optional Canvas gradebook import file,
+- a backup file that restores every class after the browser is cleared.
 
 Everything runs in the browser. There is no server and no upload.
 
@@ -35,6 +36,19 @@ All three tools run on `rjedtech.github.io`, so they can read each other's saved
 
 - Roster Hub offers classes saved in the Randomizer (`rs3_classes`) and the Pod Generator (`rr_pods_v3`) as one-tap buttons.
 - The Randomizer and the Pod Generator show classes remembered in Roster Hub (`rj-roster-hub-v1`) in their "bring one back" rows.
+
+## Export layouts
+
+The download menu is a list of layouts, one per app, kept in `FORMATS` in `index.html`:
+
+- **Any app (numbers only):** `Student number, Display name ("Student 307"), Class`, one row per student.
+- **ZipGrade:** `First Name, Last Name, ZipGrade ID, Class` with 40 seats, for Students › Import From CSV.
+
+To support another app, add an entry with its column headings, one row per student, how many seats to include, and the note the number slips should show. The teacher's choice is remembered (`rj-roster-hub-fmt`).
+
+## Backups
+
+**Back up all my classes** saves `raider-roster-hub-backup-YYYY-MM-DD.json` (`_app: "raider-roster-hub"`). **Restore from a backup** brings every class back with its class number, and asks before replacing a different class. The file holds student names, so teachers keep it in OneDrive.
 
 ## Codes
 
