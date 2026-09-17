@@ -132,6 +132,16 @@ body.light .site-footer{border-top-color:rgba(0,0,0,.1);color:#888}
 </style>
 </head>
 <body>
+<script>
+/* Light/dark follows the operating system setting. No in-page toggle by design. */
+(function(){
+  var mq = window.matchMedia("(prefers-color-scheme: light)");
+  function apply(){ document.body.classList.toggle("light", mq.matches); }
+  apply();
+  if (mq.addEventListener) mq.addEventListener("change", apply);
+  else if (mq.addListener) mq.addListener(apply);
+})();
+</script>
 <div class="ctr">
 <header class="site-header">
   <div class="hl">
@@ -141,10 +151,6 @@ body.light .site-footer{border-top-color:rgba(0,0,0,.1);color:#888}
       <div class="tagline">One class list for your RJ tools · anonymous class lists for apps like ZipGrade</div>
     </div>
   </div>
-  <button class="icon-btn theme-toggle" id="themeTgl" type="button" aria-label="Switch light or dark">
-    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
-  </button>
 </header>
 
 <div class="promise"><b>Names stay on this computer.</b> Nothing you paste here is uploaded. Other apps only ever get the numbers file from step 3.</div>
@@ -607,12 +613,6 @@ function cleanRoster(raw,mode){
   return {names:out,changed:changed,sample:sample,sections:sections,source:src};
 }
 
-/* ---------- theme ---------- */
-try { if (localStorage.getItem('rj-theme') === 'light') document.body.classList.add('light'); } catch(e){}
-$('themeTgl').addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  try { localStorage.setItem('rj-theme', document.body.classList.contains('light') ? 'light' : 'dark'); } catch(e){}
-});
 
 /* ---------- tabs ---------- */
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
