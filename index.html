@@ -164,6 +164,14 @@ body.fs .rj-masthead::before{display:none}
 @media(max-width:600px){.rj-masthead .brand,.rj-masthead h1{font-size:17px!important}.rj-masthead>label{flex-basis:100%}}
 @media print{.rj-masthead::before{display:none}.rj-masthead,.rj-masthead .brand,.rj-masthead h1{color:#000!important;-webkit-text-fill-color:#000!important}}
 /*/RJMASTHEAD*/
+
+/*RJCONTRAST*/
+/* Readability: text colours lifted to WCAG AA contrast (4.5:1) in each theme */
+body.light .site-footer{color:#6d6d6d}
+:where(body:not(.light)) .site-footer{color:#888888}
+body:not(.light) .rj-tools h2{color:#ed516a}
+body:not(.light) .rj-here{color:#ee5870}
+/*/RJCONTRAST*/
 </style>
 </head>
 <body>
